@@ -8,11 +8,14 @@ import time
 start_time = time.time()
 
 # observation probability: O(o|s') = ob[o][s']
-ob = ((0.9, 0.2), (0.1, 0.8))
+ob = ((0.9, 0.2),
+      (0.1, 0.8))
 # transition probability: T(s'|s, a) = t[s'][s][a]
-t = (((0.9, 1), (0, 1)), ((0.1, 0), (1, 0)))
+t = (((0.9, 1), (0, 1)),
+     ((0.1, 0), (1, 0)))
 # reward: R(s, a) = r[s][a]
-r = ((0, -5), (-10, -15))
+r = ((0, -5),
+     (-10, -15))
 
 # P(o|s, a) = p[o][s][a]
 # P(o|s, a) = sum_s' (O(o|s')*P(s'|s,a))
@@ -28,7 +31,7 @@ r = ((0, -5), (-10, -15))
 # we use b(s_1) to denote belief state, since b(s_0) + b(s_1) = 1
 def belief_update(b0, a, o):
     """
-    perform belief update
+    perform belief update, follows eqn(6.11) on page 137, Decision Making Under Uncertainty.
     :param b0: the belief before update
     :param a: the action we took
     :param o: the observance we observed
@@ -51,9 +54,9 @@ def q(b, a, n):
     """
     if n > 1:
         u = r[0][a] * (1-b) + r[1][a] * b
-        for s in range(2):
-            for ss in range(2):
-                for o in range(2):
+        for s in range(2):  # sum over current state
+            for ss in range(2):  # sum over next state (ss denotes next state)
+                for o in range(2):  # sum over observation
                     m = max(q(belief_update(b, a, o), 0, n - 1), q(belief_update(b, a, o), 1, n - 1))
                     if s == 1:
                         u += gamma * b * t[ss][s][a] * ob[o][ss] * m
@@ -81,7 +84,7 @@ plt.plot(b, utility0, label='not feed')
 plt.plot(b, utility1, label='feed')
 plt.legend(loc='upper right')
 plt.title('utility with horizon %s (belief)' % n)
-plt.xlabel('p of hungry')
+plt.xlabel('probability of hungry')
 plt.ylabel('utility')
 plt.show()
 
